@@ -1,11 +1,11 @@
 # Configure Linux Red Hat 7 LVM via Ansible
 
 ## Table of Contents
-**[Short Description](#short-description)**
-
-**[Full Description](#full-description)**
-
-**[Creat Volume for VM via AWS](#creat-volume-for-vm-via-aws)**
+* **[Short Description](#short-description)**
+* **[Full Description](#full-description)**
+* **[Creat Volume for VM via AWS](#creat-volume-for-vm-via-aws)**
+  * **[Create Volume](#create-volume)**
+  * **[Attach Volume](#attach-volume)**
 
 ## Short Description
 Ansible LVM
