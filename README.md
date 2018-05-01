@@ -74,7 +74,7 @@ xvdf 202:80   0   1G  0 disk
 $ sudo pvcreate PV
 ```
 Where:
-* `PV` -- physical volume.
+* `PV` -- name of physical volume.
 
 Example:
 ```
@@ -113,8 +113,8 @@ PV UUID               yWyrLo-K2DT-3GBP-D5YE-NeRL-3ef1-NJyX59
 $ sudo vgcreate VG PV
 ```
 Where:
-* `VG` -- volume group,
-* `PV` -- physical volume.
+* `VG` -- name of volume group,
+* `PV` -- name ofphysical volume.
 
 Example:
 ```
@@ -156,4 +156,72 @@ Total PE              255
 Alloc PE / Size       0 / 0
 Free  PE / Size       255 / 1020,00 MiB
 VG UUID               eeHHEq-UIRp-AnLf-bN2D-vnlo-G2a2-mQRPVE
+```
+### Ceate a new logical volume with the lvcreate command:
+```
+$ sudo lvcreate -l PERCENTAGE -n LV VG
+```
+Where:
+* `-l` or `--extents` -- specify the percentage of the remaining free space in a volume group as the size of the logical volume,
+* `PERCENTAGE` -- percentage,
+* `-n` or `--name` -- specify the name of logical volume,
+* `LV` -- name of logical volume,
+* `VG` -- name of volume group.
+
+The following command creates a logical volume called `0001lv` that uses all of the unallocated space in the volume group `0001vg`:
+```
+$ sudo lvcreate -l 100%FREE -n 0001lv 0001vg
+Logical volume "0001lv" created.
+```
+### Check logical volumes
+```
+$ sudo lvscan
+ACTIVE            '/dev/0001vg/0001lv' [1020,00 MiB] inherit
+```
+or
+```
+$ sudo lvs
+LV     VG     Attr       LSize    Pool Origin Data%  Meta%  Move Log Cpy%Sync Convert
+0001lv 0001vg -wi-a----- 1020,00m
+```
+or
+```
+$ sudo lvdisplay
+--- Logical volume ---
+LV Path                /dev/0001vg/0001lv
+LV Name                0001lv
+VG Name                0001vg
+LV UUID                Png2PJ-zsDh-HR3W-UPBm-jHo0-VAWP-iI32lf
+LV Write Access        read/write
+LV Creation host, time ip-172-31-21-64.eu-west-1.compute.internal, 2018-05-01 13:26:54 +0000
+LV Status              available
+# open                 0
+LV Size                1020,00 MiB
+Current LE             255
+Segments               1
+Allocation             inherit
+Read ahead sectors     auto
+- currently set to     256
+Block device           253:0
+```
+### Build/format a Linux file system
+```
+$ sudo mkfs.FSTYPE LV
+```
+Where:
+* `FSTYPE` -- type of file system,
+* `LV` -- name of logical volume.
+Example:
+
+```
+$ sudo mkfs.xfs /dev/0001vg/0001lv
+meta-data=/dev/0001vg/0001lv     isize=512    agcount=4, agsize=65280 blks
+         =                       sectsz=512   attr=2, projid32bit=1
+         =                       crc=1        finobt=0, sparse=0
+data     =                       bsize=4096   blocks=261120, imaxpct=25
+         =                       sunit=0      swidth=0 blks
+naming   =version 2              bsize=4096   ascii-ci=0 ftype=1
+log      =internal log           bsize=4096   blocks=855, version=2
+         =                       sectsz=512   sunit=0 blks, lazy-count=1
+realtime =none                   extsz=4096   blocks=0, rtextents=0
 ```
