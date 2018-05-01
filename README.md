@@ -32,4 +32,19 @@ You can create an Amazon EBS volume that you can then attach to any EC2 instance
 
 5th, choose `Close`. See images below:
 
-![aws-volumes-create_volume_0003.png](img/aws-volumes-create_volume_0003.png "AWS Volumes")
+![aws-volumes-create_volume_0003.png](img/aws-volumes-create_volume_0003.png "AWS Volumes --> Create Volume --> Create Volume --> Close")
+
+### Attach Volume
+1st, open [Amazon EC2 console](https://console.aws.amazon.com/ec2/).
+
+2nd, in the navigation pane, choose `Elastic Block Store`, `Volumes`. Select an available volume and choose `Actions`, `Attach Volume`. See images below:
+
+![aws-volumes-attach_volume_0001.png](img/aws-volumes-attach_volume_0001.png "AWS Volumes --> Actions --> Attach Volume")
+
+3rd, for `Instance`, start typing the name or ID of the instance. Select the instance from the list of options (only instances that are in the same Availability Zone as the volume are displayed). See images below:
+
+![aws-volumes-attach_volume_0002.png](img/aws-volumes-attach_volume_0002.png "AWS Volumes --> Actions --> Attach Volume --> Instance")
+
+4th, for `Device`, you can keep the suggested device name. Choose `Attach`. See images below:
+
+![aws-volumes-attach_volume_0003.png](img/aws-volumes-attach_volume_0003.png "AWS Volumes --> Actions --> Attach Volume --> Attach")
