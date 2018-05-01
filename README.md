@@ -21,3 +21,15 @@ You can create an Amazon EBS volume that you can then attach to any EC2 instance
 2nd, from the navigation bar, select the region in which you would like to create your volume. In the navigation pane, choose `ELASTIC BLOCK STORE`, `Volumes`. See images below:
 
 ![aws-volumes.png](img/aws-volumes.png "AWS Volumes")
+
+3rd, choose `Create Volume`. See images below:
+
+![aws-volumes-create_volume_0001.png](img/aws-volumes-create_volume_0001.png "AWS Volumes --> Create Volume")
+
+4th, for `Volume Type`, choose a volume type. For `Size (GiB)`, type the size of the volume. For `Availability Zone`, choose the Availability Zone in which to create the volume. EBS volumes can only be attached to EC2 instances within the same Availability Zone. Choose `Create Volume`. See images below:
+
+![aws-volumes-create_volume_0002.png](img/aws-volumes-create_volume_0002.png "AWS Volumes --> Create Volume --> Create Volume")
+
+5th, choose `Close`. See images below:
+
+![aws-volumes-create_volume_0003.png](img/aws-volumes-create_volume_0003.png "AWS Volumes")
