@@ -225,3 +225,15 @@ log      =internal log           bsize=4096   blocks=855, version=2
          =                       sectsz=512   sunit=0 blks, lazy-count=1
 realtime =none                   extsz=4096   blocks=0, rtextents=0
 ```
+### Check type of file system
+```
+$ sudo parted -l
+Model: Linux device-mapper (linear) (dm)
+Disk /dev/mapper/0001vg-0001lv: 1070MB
+Sector size (logical/physical): 512B/512B
+Partition Table: loop
+Disk Flags:
+
+Number  Start  End     Size    File system  Flags
+ 1      0,00B  1070MB  1070MB  xfs
+```
