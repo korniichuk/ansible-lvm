@@ -7,6 +7,8 @@
   * **[Create Volume](#create-volume)**
   * **[Attach Volume](#attach-volume)**
 * **[Add File System on Volume](#add-file-system-on-volume)**
+* **[Grow File System with New Volume](#grow-file-system-with-new-volume)**
+* **[Grow File System with Volume Resize](#grow-file-system-with-volume-resize)**
 
 ## Short Description
 Ansible LVM
@@ -211,6 +213,7 @@ $ sudo mkfs.FSTYPE LV
 Where:
 * `FSTYPE` -- type of file system,
 * `LV` -- name of logical volume.
+
 Example:
 
 ```
@@ -278,5 +281,50 @@ UUID=50a9826b-3a50-44d0-ad12-28f2056e9927 /                       xfs     defaul
 $ sudo mount -a
 $ df -h
 Filesystem                 Size  Used Avail Use% Mounted on
-/dev/mapper/0001vg-0001lv  3,0G   33M  3,0G   2% /test
+/dev/mapper/0001vg-0001lv 1017M   33M  985M   4% /test
 ```
+
+## Grow File System with New Volume
+1st, [create new volume](#create-volume) and [attach volume](#attach-volume) to VM.
+2nd, list block devices:
+```
+$ lsblk -d
+```
+Where:
+* `-d` or `--nodeps` -- do not print holder devices or slaves.
+
+Example:
+```
+$ lsblk -d
+NAME MAJ:MIN RM SIZE RO TYPE MOUNTPOINT
+xvda 202:0    0  15G  0 disk
+xvdf 202:80   0   1G  0 disk
+xvdg 202:96   0   1G  0 disk
+```
+3rd, ceate a new physical volume with the `pvcreate` command:
+```
+$ sudo pvcreate PV
+```
+Where:
+* `PV` -- name of physical volume.
+
+Example:
+```
+$ sudo pvcreate /dev/xvdg
+Physical volume "/dev/xvdg" successfully created.
+```
+4th, use the `vgextend` command to extend the volume group:
+```
+$ sudo vgextend VG PV
+```
+Where:
+* `VG` -- name of volume group,
+* `PV` -- name of physical volume.
+
+Example:
+```
+$ sudo vgextend 0001vg /dev/xvdg
+Volume group "0001vg" successfully extended
+```
+
+## Grow File System with Volume Resize
