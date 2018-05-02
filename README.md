@@ -6,6 +6,7 @@
 * **[Creat Volume for VM via AWS](#creat-volume-for-vm-via-aws)**
   * **[Create Volume](#create-volume)**
   * **[Attach Volume](#attach-volume)**
+  * **[Modify Volume](#modify-volume)**
 * **[Add File System on Volume](#add-file-system-on-volume)**
 * **[Grow File System with New Volume](#grow-file-system-with-new-volume)**
 * **[Grow File System with Volume Resize](#grow-file-system-with-volume-resize)**
@@ -51,6 +52,25 @@ You can create an Amazon EBS volume that you can then attach to any EC2 instance
 4th, for `Device`, you can keep the suggested device name. Choose `Attach`. See images below:
 
 ![aws-volumes-attach_volume_0003.png](img/aws-volumes-attach_volume_0003.png "AWS Volumes --> Actions --> Attach Volume --> Attach")
+
+### Modify Volume
+1st, open [Amazon EC2 console](https://console.aws.amazon.com/ec2/).
+
+2nd, in the navigation pane, choose `Elastic Block Store`, `Volumes`. Select an available volume and choose `Actions`, `Modify Volume`. See images below:
+
+![aws-volumes-modify_volume_0001.png](img/aws-volumes-modify_volume_0001.png "AWS Volumes --> Actions --> Modify Volume")
+
+3rd, for `Size`, type the new size of the volume. Choose `Modify`. See image below:
+
+![aws-volumes-modify_volume_0002.png](img/aws-volumes-modify_volume_0002.png "AWS Volumes --> Actions --> Modify Volume --> Modify Volume")
+
+4th, choose `Yes`. See image below:
+
+![aws-volumes-modify_volume_0003.png](img/aws-volumes-modify_volume_0003.png "AWS Volumes --> Actions --> Modify Volume --> Modify Volume --> Yes")
+
+5th, choose `Close`. See image below:
+
+![aws-volumes-modify_volume_0004.png](img/aws-volumes-modify_volume_0004.png "AWS Volumes --> Actions --> Modify Volume --> Modify Volume --> Yes --> Close")
 
 ## Add File System on Volume
 ### Install lvm2:
@@ -164,13 +184,13 @@ VG UUID               eeHHEq-UIRp-AnLf-bN2D-vnlo-G2a2-mQRPVE
 $ sudo lvcreate -l PERCENTAGE -n LV VG
 ```
 Where:
-* `-l` or `--extents` -- specify the percentage of the remaining free space in a volume group as the size of the logical volume,
+* `-l` or `--extents` -- specify a percentage of the remaining free space in a volume group as the size of the logical volume,
 * `PERCENTAGE` -- percentage,
 * `-n` or `--name` -- specify the name of logical volume,
 * `LV` -- name of logical volume,
 * `VG` -- name of volume group.
 
-The following command creates a logical volume called `0001lv` that uses all of the unallocated space in the volume group `0001vg`:
+The following command creates the logical volume called `0001lv` that uses all of the unallocated space in the volume group `0001vg`:
 ```
 $ sudo lvcreate -l 100%FREE -n 0001lv 0001vg
 Logical volume "0001lv" created.
@@ -286,6 +306,7 @@ Filesystem                 Size  Used Avail Use% Mounted on
 
 ## Grow File System with New Volume
 1st, [create new volume](#create-volume) and [attach volume](#attach-volume) to VM.
+
 2nd, list block devices:
 ```
 $ lsblk -d
@@ -326,5 +347,85 @@ Example:
 $ sudo vgextend 0001vg /dev/xvdg
 Volume group "0001vg" successfully extended
 ```
+5th, once the volume group is large enough to include the larger file system, extend the logical volume with `lvextend` or `lvresize` command.
+```
+$ sudo lvextend -r -l PERCENTAGE LV
+```
+Where:
+* `-r` or `--resizefs` -- resize file system,
+* `-l` or `--extents` -- specify a percentage of the remaining free space in a volume group,
+* `PERCENTAGE` -- percentage,
+* `LV` -- name of logical volume.
+
+The following command extend the logical volume called `0001lv` to fill all of the unallocated space in the volume group `0001vg`:
+```
+$ sudo lvextend -r -l +100%FREE /dev/0001vg/0001lv
+Size of logical volume 0001vg/0001lv changed from 1020,00 MiB (255 extents) to 1,99 GiB (510 extents).
+Logical volume 0001vg/0001lv successfully resized.
+meta-data=/dev/mapper/0001vg-0001lv isize=512    agcount=4, agsize=65280 blks
+         =                       sectsz=512   attr=2, projid32bit=1
+         =                       crc=1        finobt=0 spinodes=0
+data     =                       bsize=4096   blocks=261120, imaxpct=25
+         =                       sunit=0      swidth=0 blks
+naming   =version 2              bsize=4096   ascii-ci=0 ftype=1
+log      =internal               bsize=4096   blocks=855, version=2
+         =                       sectsz=512   sunit=0 blks, lazy-count=1
+realtime =none                   extsz=4096   blocks=0, rtextents=0
+data blocks changed from 261120 to 522240
+```
 
 ## Grow File System with Volume Resize
+1st, list block devices:
+```
+$ lsblk -d
+```
+Where:
+* `-d` or `--nodeps` -- do not print holder devices or slaves.
+
+Example:
+```
+$ lsblk -d
+NAME MAJ:MIN RM SIZE RO TYPE MOUNTPOINT
+xvda 202:0    0  15G  0 disk
+xvdf 202:80   0   1G  0 disk
+```
+2nd, [modify volume](#modify-volume) and list block devices again:
+```
+$ lsblk -d
+NAME MAJ:MIN RM SIZE RO TYPE MOUNTPOINT
+xvda 202:0    0  15G  0 disk
+xvdf 202:80   0   2G  0 disk
+```
+3rd, reread partition table and resize physical volume with the `pvresize` command:
+```
+$ sudo blockdev --rereadpt /dev/xvdf
+$ sudo pvresize /dev/xvdf
+Physical volume "/dev/xvdf" changed
+1 physical volume(s) resized / 0 physical volume(s) not resized
+```
+4th, extend the logical volume with `lvextend` or `lvresize` command.
+```
+$ sudo lvextend -r -l PERCENTAGE LV
+```
+Where:
+* `-r` or `--resizefs` -- resize file system,
+* `-l` or `--extents` -- specify a percentage of the remaining free space in a volume group,
+* `PERCENTAGE` -- percentage,
+* `LV` -- name of logical volume.
+
+The following command extend the logical volume called `0001lv` to fill all of the unallocated space in the volume group `0001vg`:
+```
+$ sudo lvextend -r -l +100%FREE /dev/0001vg/0001lv
+Size of logical volume 0001vg/0001lv changed from 1020,00 MiB (255 extents) to <2,00 GiB (511 extents).
+Logical volume 0001vg/0001lv successfully resized.
+meta-data=/dev/mapper/0001vg-0001lv isize=512    agcount=4, agsize=65280 blks
+         =                       sectsz=512   attr=2, projid32bit=1
+         =                       crc=1        finobt=0 spinodes=0
+data     =                       bsize=4096   blocks=261120, imaxpct=25
+         =                       sunit=0      swidth=0 blks
+naming   =version 2              bsize=4096   ascii-ci=0 ftype=1
+log      =internal               bsize=4096   blocks=855, version=2
+         =                       sectsz=512   sunit=0 blks, lazy-count=1
+realtime =none                   extsz=4096   blocks=0, rtextents=0
+data blocks changed from 261120 to 523264
+```
