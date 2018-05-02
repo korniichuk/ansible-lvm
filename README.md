@@ -237,3 +237,46 @@ Disk Flags:
 Number  Start  End     Size    File system  Flags
  1      0,00B  1070MB  1070MB  xfs
 ```
+### Mount logical volume temporary
+```
+$ sudo mkdir /test
+$ sudo mount /dev/0001vg/0001lv /test
+```
+### Mount logical volume permanently
+1st, unmoumt volume and open `/etc/fstab` file:
+```
+$ sudo umount /test
+$ sudo yum install -y nano
+$ sudo nano /etc/fstab
+#
+# /etc/fstab
+# Created by anaconda on Fri Mar 23 17:41:14 2018
+#
+# Accessible filesystems, by reference, are maintained under '/dev/disk'
+# See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info
+#
+UUID=50a9826b-3a50-44d0-ad12-28f2056e9927 /                       xfs     defaults        0 0
+```
+2nd, manually add next line in `/etc/fstab` file:
+```
+/dev/0001vg/0001lv		/test		xfs		defaults		0 0
+```
+Example:
+```
+#
+# /etc/fstab
+# Created by anaconda on Fri Mar 23 17:41:14 2018
+#
+# Accessible filesystems, by reference, are maintained under '/dev/disk'
+# See man pages fstab(5), findfs(8), mount(8) and/or blkid(8) for more info
+#
+UUID=50a9826b-3a50-44d0-ad12-28f2056e9927 /                       xfs     defaults        0 0
+/dev/0001vg/0001lv		/test		xfs		defaults		0 0
+```
+3rd, check result:
+```
+$ sudo mount -a
+$ df -h
+Filesystem                 Size  Used Avail Use% Mounted on
+/dev/mapper/0001vg-0001lv  3,0G   33M  3,0G   2% /test
+```
