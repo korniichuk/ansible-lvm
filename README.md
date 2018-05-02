@@ -10,7 +10,7 @@
 * **[Add File System on Volume](#add-file-system-on-volume)**
 * **[Increase File System with New Volume](#increase-file-system-with-new-volume)**
 * **[Increase File System with Volume Resize](#increase-file-system-with-volume-resize)**
-* **[Decrease File System](decrease-file-system)**
+* **[Decrease File System](#decrease-file-system)**
 
 ## Short Description
 Ansible LVM
