@@ -8,8 +8,9 @@
   * **[Attach Volume](#attach-volume)**
   * **[Modify Volume](#modify-volume)**
 * **[Add File System on Volume](#add-file-system-on-volume)**
-* **[Grow File System with New Volume](#grow-file-system-with-new-volume)**
-* **[Grow File System with Volume Resize](#grow-file-system-with-volume-resize)**
+* **[Increase File System with New Volume](#increase-file-system-with-new-volume)**
+* **[Increase File System with Volume Resize](#increase-file-system-with-volume-resize)**
+* **[Decrease File System](decrease-file-system)**
 
 ## Short Description
 Ansible LVM
@@ -304,7 +305,7 @@ Filesystem                 Size  Used Avail Use% Mounted on
 /dev/mapper/0001vg-0001lv 1017M   33M  985M   4% /test
 ```
 
-## Grow File System with New Volume
+## Increase File System with New Volume
 1st, [create new volume](#create-volume) and [attach volume](#attach-volume) to VM.
 
 2nd, list block devices:
@@ -374,7 +375,7 @@ realtime =none                   extsz=4096   blocks=0, rtextents=0
 data blocks changed from 261120 to 522240
 ```
 
-## Grow File System with Volume Resize
+## Increase File System with Volume Resize
 1st, list block devices:
 ```
 $ lsblk -d
@@ -429,3 +430,36 @@ log      =internal               bsize=4096   blocks=855, version=2
 realtime =none                   extsz=4096   blocks=0, rtextents=0
 data blocks changed from 261120 to 523264
 ```
+
+## Decrease File System
+Remember, please, solution does not work with [XFS](https://en.wikipedia.org/wiki/XFS) file system:
+```
+$ sudo lvreduce -r -L -100 /dev/0001vg/0001lv
+fsadm: Xfs filesystem shrinking is unsupported.
+/usr/sbin/fsadm failed: 1
+Filesystem resize failed.
+```
+### Reduce the size of logical volume with `lvreduce` command
+```
+$ sudo lvreduce -r -L SIZE LV
+```
+Where:
+* `-r` or `--resizefs` -- resize underlying filesystem together with the logical volume,
+* `-L` or `--size` -- reduce or set the logical volume size in units of megabytes,
+* `SIZE` -- size in units of megabytes. A size suffix of `g` for gigabytes, `t` for terabytes, `p` for petabytes is optional. With the `-` sign the value will be subtracted from the logical volume's actual size and without it it will be taken as an absolute size,
+* `LV` -- name of logical volume.
+
+Example:
+```
+$ sudo lvreduce -r -L -100 /dev/0001vg/0001lv
+Do you want to unmount "/test" ? [Y|n] y
+fsck from util-linux 2.23.2
+/dev/mapper/0001vg-0001lv: 11/130816 files (0.0% non-contiguous), 17948/523264 blocks
+resize2fs 1.42.9 (28-Dec-2013)
+Resizing the filesystem on /dev/mapper/0001vg-0001lv to 497664 (4k) blocks.
+The filesystem on /dev/mapper/0001vg-0001lv is now 497664 blocks long.
+
+Size of logical volume 0001vg/0001lv changed from <2,00 GiB (511 extents) to <1,90 GiB (486 extents).
+Logical volume 0001vg/0001lv successfully resized.
+```
+Remember, only [Btrfs](https://en.wikipedia.org/wiki/Btrfs) and [ZFS](https://en.wikipedia.org/wiki/ZFS) can be shrunk online.
