@@ -1,0 +1,18 @@
+# Version: 0.1a1
+---
+
+- name: increase-fs-with-new-volume
+  hosts: aws-rhel
+  remote_user: ec2-user
+  become: True
+
+  tasks:
+
+    - name: Create new physical volume
+      shell: pvcreate /dev/xvdg
+
+    - name: Extend volume group
+      shell: vgextend 0001vg /dev/xvdg
+
+    - name: Extend logical volume
+      shell: lvextend -r -l +100%FREE /dev/0001vg/0001lv
