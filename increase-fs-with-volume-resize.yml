@@ -1,32 +1,35 @@
-# Version: 0.1a2
+# Version: 0.1a3
 ---
 
 - name: 1/2-increase-fs-with-volume-resize
   hosts: localhost
   connection: local
-  become: True
 
   tasks:
 
     - name: Install boto package
+      become: True
       pip:
         name: boto
 
     - name: Modify volume
+      become: True
       shell: aws ec2 modify-volume --volume-id {{volume_id}} --size 2
 
 - name: 2/2-increase-fs-with-volume-resize
-  hosts: aws-rhel
+  hosts: red-hat
   remote_user: ec2-user
-  become: True
 
   tasks:
 
     - name: Reread partition table
+      become: True
       shell: blockdev --rereadpt /dev/xvdg
 
     - name: Resize physical volume
+      become: True
       shell: pvresize /dev/xvdg
 
     - name: Extend logical volume
+      become: True
       shell: lvextend -r -l +100%FREE /dev/0001vg/0001lv

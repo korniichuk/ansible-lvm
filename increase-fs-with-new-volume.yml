@@ -1,4 +1,4 @@
-# Version: 0.1a2
+# Version: 0.1a3
 ---
 
 - name: 1/2-increase-fs-with-new-volume
@@ -19,7 +19,7 @@
     - name: Write `output` var to `/tmp/data.json` file
       shell: echo "{{ output.stdout_lines | to_json }}" > /tmp/data.json
 
-    - name: Get value of `VolumeId` var
+    - name: Get value of `VolumeId`
       shell: python3 -c 'import json; file = open("/tmp/data.json", "r"); data=file.read().replace(",,",",").replace("{,", "{").replace(", }"," }"); file.close(); print(json.loads(data)[0]["VolumeId"])'
       register: output
 
@@ -35,17 +35,17 @@
         path: /tmp/data.json
 
 - name: 2/2-increase-fs-with-new-volume
-  hosts: aws-rhel
+  hosts: red-hat
   remote_user: ec2-user
   become: True
 
   tasks:
 
-    - name: Create new physical volume
+    - name: Create PV
       shell: pvcreate /dev/xvdg
 
-    - name: Extend volume group
+    - name: Extend VG
       shell: vgextend 0001vg /dev/xvdg
 
-    - name: Extend logical volume
+    - name: Extend LV
       shell: lvextend -r -l +100%FREE /dev/0001vg/0001lv
