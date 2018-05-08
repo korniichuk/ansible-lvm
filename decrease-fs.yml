@@ -1,12 +1,12 @@
-# Version: 0.1a1
+# Version: 0.1a2
 ---
 
 - name: decrease-fs
-  hosts: aws-rhel
+  hosts: red-hat
   remote_user: ec2-user
-  become: True
 
   tasks:
 
     - name: Reduce logical volume
+      become: True
       shell: lvreduce -y -r -L -1G /dev/0001vg/0001lv
