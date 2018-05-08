@@ -1,7 +1,40 @@
-# Version: 0.1a1
+# Version: 0.1a2
 ---
 
-- name: increase-fs-with-new-volume
+- name: 1/2-increase-fs-with-new-volume
+  hosts: localhost
+  connection: local
+  become: True
+
+  tasks:
+
+    - name: Install boto package
+      pip:
+        name: boto
+
+    - name: Create volume and save output to `output` var
+      shell: aws ec2 create-volume --volume-type gp2 --size 1 --region eu-west-1 --availability-zone eu-west-1a
+      register: output
+
+    - name: Write `output` var to `/tmp/data.json` file
+      shell: echo "{{ output.stdout_lines | to_json }}" > /tmp/data.json
+
+    - name: Get value of `VolumeId` var
+      shell: python3 -c 'import json; file = open("/tmp/data.json", "r"); data=file.read().replace(",,",",").replace("{,", "{").replace(", }"," }"); file.close(); print(json.loads(data)[0]["VolumeId"])'
+      register: output
+
+    - name: Wait 10 seconds
+      shell: sleep 10
+
+    - name: Attach volume
+      shell: aws ec2 attach-volume --volume-id {{ output.stdout }} --instance-id i-016a291465806e72f --device /dev/sdg
+
+    - name: Delete `/tmp/data.json` file
+      file:
+        state: absent
+        path: /tmp/data.json
+
+- name: 2/2-increase-fs-with-new-volume
   hosts: aws-rhel
   remote_user: ec2-user
   become: True
