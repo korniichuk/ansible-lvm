@@ -1,0 +1,27 @@
+# Version: 0.1a1
+---
+
+- name: remove-pv
+  hosts: red-hat
+  remote_user: ec2-user
+  become: True
+
+  tasks:
+
+#    - name: Unmount FS
+#      shell: umount /test
+
+    - name: Remove LV
+      shell: lvremove -f /dev/0001vg/0001lv
+
+    - name: Reduce VG
+      shell: vgreduce 0001vg /dev/xvdg
+
+    - name: Create LV
+      shell: lvcreate -l 100%FREE -n 0001lv 0001vg
+
+    - name: Make FS
+      shell: mkfs.ext4 /dev/0001vg/0001lv
+
+    - name: Mount FS
+      shell: mount -a
