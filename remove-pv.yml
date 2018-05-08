@@ -1,4 +1,4 @@
-# Version: 0.1a2
+# Version: 0.1a3
 ---
 
 - name: remove-pv
@@ -20,6 +20,10 @@
     - name: Reduce VG
       become: True
       shell: vgreduce 0001vg /dev/xvdg
+
+    - name: Remove PV
+      become: True
+      shell: pvremove /dev/xvdg
 
     - name: Create LV
       become: True
