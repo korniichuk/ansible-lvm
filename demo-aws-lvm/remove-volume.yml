@@ -1,9 +1,9 @@
 # Version: 0.1a3
 ---
 
-- name: remove-pv
-  hosts: red-hat
-  remote_user: ec2-user
+- name: remove-volume
+  hosts: localhost
+  connection: local
 
   tasks:
 
@@ -36,3 +36,18 @@
     - name: Mount FS
       become: True
       shell: mount -a
+
+    - name: Get `VolumeId`
+      shell: cat /tmp/volume_id
+      register: output
+
+    - name: Detach volume
+      become: True
+      shell: aws ec2 detach-volume --volume-id {{ output.stdout }}
+
+    - name: Wait 10 seconds
+      shell: sleep 10
+
+    - name: Delete volume
+      become: True
+      shell: aws ec2 delete-volume --volume-id {{ output.stdout }}
