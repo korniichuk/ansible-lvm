@@ -1,0 +1,20 @@
+# Version: 0.1a1
+---
+
+- name: increase-tablespace
+  hosts: localhost
+  connection: local
+
+  tasks:
+
+    - name: Add Oracle DB datafile
+      oracle_tablespace:
+        service_name=orcl
+        user=system
+        password=manager
+        tablespace=test
+        free_mb=32000
+        size=1G
+        nextsize=1G
+        maxsize=UNLIMITED
+        state=free
