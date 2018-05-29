@@ -1,5 +1,5 @@
 #!/usr/bin/env python2
-# Version: 0.1a2
+# Version: 0.1a3
 
 from bottle import post, request, run
 from fabric.api import local
@@ -24,7 +24,7 @@ def filesystem():
     """
 
     data = {}
-    data['host'] = localhost
+    data['host'] = 'localhost'
     data['fs'] = None
     data['vmware'] = None
     data['vmware_user'] = None
@@ -42,8 +42,15 @@ def filesystem():
     extra_vars_str = extra_vars_str % (data['host'], data['fs'],
             data['vmware'], data['vmware_user'], data['vmware_passwd'],
             data['disk_size'])
-    local("ansible-playbook /root/increase-filesystem.yml "
-          "--extra-vars '%s'" % extra_vars_str)
+    text = "ansible-playbook /root/increase-filesystem.yml " \
+           "--extra-vars '%s'" % extra_vars_str
+    blocks = text.split(" ")
+    command = []
+    for el in blocks:
+        if 'None' not in el:
+            command.append(el)
+    command = " ".join(command)
+    local(command)
     return 0
 
 @post('/api/tablespace/increase')
@@ -109,12 +116,19 @@ def tablespace():
                      'max_size=%s fs=%s vmware=%s vmware_user=%s ' \
                      'vmware_passwd=%s disk_size=%s'
     extra_vars_str = extra_vars_str % (data['host'], data['db_name'],
-            data['tablespace_name'], data['user'], data['passwd'],
+            data['tablespace_name'], data['db_user'], data['db_passwd'],
             data['free_mb'], data['size'], data['next_size'], data['max_size'],
             data['fs'], data['vmware'], data['vmware_user'],
             data['vmware_passwd'], data['disk_size'])
-    local("ansible-playbook /root/increase-tablespace.yml "
-          "--extra-vars '%s'" % extra_vars_str)
+    text = "ansible-playbook /root/increase-tablespace.yml " \
+           "--extra-vars '%s'" % extra_vars_str
+    blocks = text.split(" ")
+    command = []
+    for el in blocks:
+        if 'None' not in el:
+            command.append(el)
+    command = " ".join(command)
+    local(command)
     return 0
 
 host = ifaddresses('eth0')[AF_INET][0]['addr']
