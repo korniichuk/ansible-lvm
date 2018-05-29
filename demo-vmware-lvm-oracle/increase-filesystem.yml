@@ -1,0 +1,27 @@
+# Version: 0.1a1
+---
+
+- name: increase-filesystem
+  hosts: localhost
+  connection: local
+
+  tasks:
+
+    - name: Add new disk and save output to `output` var
+      shell: /root/add_disk_to_vm --host={{ vmware }} --user={{ vmware_user }} --password={{ vmware_passwd }} --vm-name={{ host }} --disk-size={{ disk_size }}
+      register: output
+
+    - name: Wait 10 seconds
+      shell: sleep 10
+
+    - name: Create PV
+      become: True
+      shell: pvcreate /dev/sdg
+
+    - name: Extend VG
+      become: True
+      shell: vgextend DEMOvg /dev/sdg
+
+    - name: Extend LV
+      become: True
+      shell: lvextend -r -l +100%FREE /dev/DEMOvg/DEMOlv
