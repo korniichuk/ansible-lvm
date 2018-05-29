@@ -1,0 +1,38 @@
+# Version: 0.1a1
+---
+
+- name: remove-volume
+  hosts: localhost
+  connection: local
+
+  tasks:
+
+    - name: Unmount FS
+      become: True
+      mount:
+        path: /demo
+        state: unmounted
+
+    - name: Remove LV
+      become: True
+      shell: lvremove -f /dev/DEMOvg/DEMOlv
+
+    - name: Reduce VG
+      become: True
+      shell: vgreduce DEMOvg /dev/sdg
+
+    - name: Remove PV
+      become: True
+      shell: pvremove /dev/sdg
+
+    - name: Create LV
+      become: True
+      shell: lvcreate -l 100%FREE -n DEMOlv DEMOvg
+
+    - name: Make FS
+      become: True
+      shell: mkfs.ext4 /dev/DEMOvg/DEMOlv
+
+    - name: Mount FS
+      become: True
+      shell: mount -a
