@@ -1,5 +1,5 @@
 #!/usr/bin/env python2
-# Version: 0.1a4
+# Version: 0.1a5
 
 import socket
 
@@ -127,7 +127,7 @@ def tablespace():
             data['fs'], data['vmware'], data['vmware_user'],
             data['vmware_passwd'], data['disk_size'])
     text = "ansible-playbook /root/increase-tablespace.yml " \
-           "--extra-vars '%s'" % extra_vars_str
+           "--extra-vars '%s' --module-path ." % extra_vars_str
     blocks = text.split(" ")
     command = []
     for el in blocks:
