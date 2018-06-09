@@ -1,4 +1,4 @@
-# Version: 0.1a2
+# Version: 0.1a3
 ---
 
 - name: increase-tablespace
@@ -8,12 +8,14 @@
   tasks:
 
     - name: Add Oracle DB datafile
+      environment:
+        LD_LIBRARY_PATH: /usr/lib/oracle/12.2/client64/lib
       oracle_tablespace:
-        host={{ host }}
+        hostname={{ host }}
         service_name={{ db_name }}
+        tablespace={{ tablespace_name }}
         user={{ db_user }}
         password={{ db_passwd }}
-        tablespace={{ tablespace_name }}
         free_mb={{ free_mb }}
         size={{ size }}
         nextsize={{ next_size }}

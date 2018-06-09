@@ -39,7 +39,7 @@ def filesystem():
             data[k] = v
     if data['fs'] == None:
         return 1
-    if host == 'localhost':
+    if data['host'] == 'localhost':
         data['host'] = socket.gethostname()
     extra_vars_str = 'host=%s fs=%s vmware=%s vmware_user=%s ' \
                      'vmware_passwd=%s disk_size=%s'
@@ -115,7 +115,7 @@ def tablespace():
     if ((data['db_name'] == None) or (data['tablespace_name'] == None) or
         (data['db_user'] == None) or (data['db_passwd'] == None)):
         return 1
-    if host == 'localhost':
+    if data['host'] == 'localhost':
         data['host'] = socket.gethostname()
     extra_vars_str = 'host=%s db_name=%s tablespace_name=%s db_user=%s ' \
                      'db_passwd=%s free_mb=%s size=%s next_size=%s ' \
