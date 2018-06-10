@@ -1,4 +1,4 @@
-# Version: 0.1a1
+# Version: 0.1a2
 ---
 
 - name: remove-volume
@@ -17,13 +17,17 @@
       become: True
       shell: lvremove -f /dev/DEMOvg/DEMOlv
 
+    - name: Get name of new device and save output to `output` var
+      shell: echo $(lsblk -d | tail -1 | cut -c 1-3)
+      register: output
+
     - name: Reduce VG
       become: True
-      shell: vgreduce DEMOvg /dev/sdg
+      shell: vgreduce DEMOvg /dev/{{ output.stdout }}
 
     - name: Remove PV
       become: True
-      shell: pvremove /dev/sdg
+      shell: pvremove /dev/{{ output.stdout }}
 
     - name: Create LV
       become: True

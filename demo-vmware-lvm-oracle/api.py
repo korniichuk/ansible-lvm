@@ -1,5 +1,5 @@
 #!/usr/bin/env python2
-# Version: 0.1a5
+# Version: 0.1a6
 
 import socket
 
@@ -20,6 +20,8 @@ def filesystem():
                   type: string),
         vmware_user -- user name to use (not required | type: string),
         vmware_passwd -- password to use(not required | type: string),
+        disk_type -- disk type: 'thin' or 'thick' (not required |
+                     type: string | default: thick),
         disk_size -- disk size, in GB, to add to the VM
                      (not required | type: string | default: 16).
 
@@ -30,7 +32,8 @@ def filesystem():
     data['fs'] = None
     data['vmware'] = None
     data['vmware_user'] = None
-    data['vmware_passwd'] =  None
+    data['vmware_passwd'] = None
+    data['disk_type'] = 'thick'
     data['disk_size'] = '16'
 
     query = request.query
@@ -42,10 +45,10 @@ def filesystem():
     if data['host'] == 'localhost':
         data['host'] = socket.gethostname()
     extra_vars_str = 'host=%s fs=%s vmware=%s vmware_user=%s ' \
-                     'vmware_passwd=%s disk_size=%s'
+                     'vmware_passwd=%s disk_type=%s disk_size=%s'
     extra_vars_str = extra_vars_str % (data['host'], data['fs'],
             data['vmware'], data['vmware_user'], data['vmware_passwd'],
-            data['disk_size'])
+            data['disk_type'], data['disk_size'])
     text = "ansible-playbook /root/increase-filesystem.yml " \
            "--extra-vars '%s'" % extra_vars_str
     blocks = text.split(" ")
@@ -87,6 +90,8 @@ def tablespace():
                   type: string),
         user -- user name to use (not required | type: string),
         passwd -- password to use(not required | type: string),
+        disk_type -- disk type: 'thin' or 'thick' (not required |
+                     type: string | default: thick),
         disk_size -- disk size, in GB, to add to the VM
                      (not required | type: string | default: 16).
 
@@ -105,7 +110,8 @@ def tablespace():
     data['fs'] = None
     data['vmware'] = None
     data['vmware_user'] = None
-    data['vmware_passwd'] =  None
+    data['vmware_passwd'] = None
+    data['disk_type'] = 'thick'
     data['disk_size'] = '16'
 
     query = request.query
@@ -120,12 +126,12 @@ def tablespace():
     extra_vars_str = 'host=%s db_name=%s tablespace_name=%s db_user=%s ' \
                      'db_passwd=%s free_mb=%s size=%s next_size=%s ' \
                      'max_size=%s fs=%s vmware=%s vmware_user=%s ' \
-                     'vmware_passwd=%s disk_size=%s'
+                     'vmware_passwd=%s disk_type=%s disk_size=%s'
     extra_vars_str = extra_vars_str % (data['host'], data['db_name'],
             data['tablespace_name'], data['db_user'], data['db_passwd'],
             data['free_mb'], data['size'], data['next_size'], data['max_size'],
             data['fs'], data['vmware'], data['vmware_user'],
-            data['vmware_passwd'], data['disk_size'])
+            data['vmware_passwd'], data['disk_type'], data['disk_size'])
     text = "ansible-playbook /root/increase-tablespace.yml " \
            "--extra-vars '%s' --module-path ." % extra_vars_str
     blocks = text.split(" ")

@@ -1,4 +1,4 @@
-# Version: 0.1a1
+# Version: 0.1a3
 ---
 
 - name: increase-filesystem
@@ -8,20 +8,42 @@
   tasks:
 
     - name: Add new disk and save output to `output` var
-      shell: /root/add_disk_to_vm --host={{ vmware }} --user={{ vmware_user }} --password={{ vmware_passwd }} --vm-name={{ host }} --disk-size={{ disk_size }}
+      shell: /root/add_disk_to_vm --host={{ vmware }} --user={{ vmware_user }} --password={{ vmware_passwd }} --vm-name={{ host }} --disk-type={{ disk_type }} --disk-size={{ disk_size }}
       register: output
 
     - name: Wait 10 seconds
       shell: sleep 10
 
+    - name: Get name of new device and save output to `output1` var
+      shell: echo $(lsblk -d | tail -1 | cut -c 1-3)
+      register: output1
+
     - name: Create PV
       become: True
-      shell: pvcreate /dev/sdg
+      shell: pvcreate /dev/{{ output1.stdout }}
+
+    - name: Get output of `vgs` command and output to `output2` var
+      become: True
+      shell: echo $(vgs | grep {{ fs }} | tail -1)
+      register: output2
+
+    - name: Get name of VG and save output to `output3` var
+      shell: python2 -c 'print("{{ output2.stdout }}".strip().split()[0])'
+      register: output3
 
     - name: Extend VG
       become: True
-      shell: vgextend DEMOvg /dev/sdg
+      shell: vgextend {{ output3.stdout }} /dev/{{ output1.stdout }}
+
+    - name: Get output of `df` command and output to `output4` var
+      become: True
+      shell: echo $(df | grep {{ fs }} | tail -1)
+      register: output4
+
+    - name: Get name of LV and save output to `output5` var
+      shell: python2 -c 'print("{{ output4.stdout }}".strip().split()[0])'
+      register: output5
 
     - name: Extend LV
       become: True
-      shell: lvextend -r -l +100%FREE /dev/DEMOvg/DEMOlv
+      shell: lvextend -r -l +100%FREE {{ output5.stdout }}
